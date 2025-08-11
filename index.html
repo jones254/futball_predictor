@@ -464,8 +464,7 @@
                 H: ${toPercent(probs.home_win)} | D: ${toPercent(probs.draw)} | A: ${toPercent(probs.away_win)}</p>
             `).join('')}
             
-            <h3>Value Analysis:</h3>
-            <p>${shift_advice.replace(/\*\*/g, '<strong>').replace(/Win\*\*/g, 'Win</strong>')}</p>
+           
         `;
         resultsDiv.classList.remove('hidden');
     }
