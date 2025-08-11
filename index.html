@@ -406,14 +406,7 @@
             bettingAdvice = 'AVOID'; 
         }
         
-        let shift_advice = "";
-        if (h_diff > d_diff && h_diff > a_diff && h_diff > 0) {
-            shift_advice = "The ensemble model shows the strongest positive shift for a **Home Win** compared to the Composite Rating model. This suggests that the other models (Poisson, Form, Defense, Market) collectively find more value in a home victory than the Composite model does on its own."; 
-        } else if (d_diff > h_diff && d_diff > a_diff && d_diff > 0) {
-            shift_advice = "The ensemble model shows the strongest positive shift for a **Draw** compared to the Composite Rating model. This suggests that the other models (Poisson, Form, Defense, Market) collectively find more value in a draw than the Composite model does on its own."; 
-        } else if (a_diff > h_diff && a_diff > d_diff && a_diff > 0) {
-            shift_advice = "The ensemble model shows the strongest positive shift for an **Away Win** compared to the Composite Rating model."; 
-        }
+      
 
         displayResults({
             predicted_outcome: predictedOutcomeValue,
