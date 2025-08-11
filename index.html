@@ -27,7 +27,7 @@
             text-align: center;
             color: #1877f2;
         }
-        
+
         #prediction-form {
             display: grid;
             grid-template-columns: 1fr;
@@ -46,7 +46,7 @@
             border-radius: 8px;
             background-color: #f7f8fa;
         }
-        
+
         .match-odds-section {
             grid-column: 1 / -1;
         }
@@ -94,7 +94,7 @@
             background-color: #ffffff;
             border: 1px solid #dddfe2;
         }
-        
+
         #results p {
             font-size: 16px;
         }
@@ -126,16 +126,16 @@
             <div class="team-section">
                 <h2>Home Team</h2>
                 <label for="home_avg_score">Average Score:</label>
-                <input type="number" step="0.01" id="home_avg_score" required value="1.29">
+                <input type="number" step="0.01" id="home_avg_score" required value="1.21">
 
                 <label for="home_avg_conceded">Average Conceded:</label>
-                <input type="number" step="0.01" id="home_avg_conceded" required value="1.24">
+                <input type="number" step="0.01" id="home_avg_conceded" required value="0.75">
 
                 <label for="home_score_percentage">Scoring Percentage (%):</label>
-                <input type="number" id="home_score_percentage" required value="71">
+                <input type="number" id="home_score_percentage" required value="79">
 
                 <label for="home_cleansheet">Clean Sheet (%):</label>
-                <input type="number" id="home_cleansheet" required value="33">
+                <input type="number" id="home_cleansheet" required value="38">
 
                 <label for="home_difficulty">Difficulty (1-5):</label>
                 <input type="number" id="home_difficulty" min="1" max="5" required value="4">
@@ -144,31 +144,31 @@
             <div class="team-section">
                 <h2>Away Team</h2>
                 <label for="away_avg_score">Average Score:</label>
-                <input type="number" step="0.01" id="away_avg_score" required value="1.5">
+                <input type="number" step="0.01" id="away_avg_score" required value="1.21">
 
                 <label for="away_avg_conceded">Average Conceded:</label>
-                <input type="number" step="0.01" id="away_avg_conceded" required value="0.95">
+                <input type="number" step="0.01" id="away_avg_conceded" required value="1.33">
 
                 <label for="away_score_percentage">Scoring Percentage (%):</label>
-                <input type="number" id="away_score_percentage" required value="73">
+                <input type="number" id="away_score_percentage" required value="67">
 
                 <label for="away_cleansheet">Clean Sheet (%):</label>
-                <input type="number" id="away_cleansheet" required value="50">
+                <input type="number" id="away_cleansheet" required value="25">
 
                 <label for="away_difficulty">Difficulty (1-5):</label>
-                <input type="number" id="away_difficulty" min="1" max="5" required value="4">
+                <input type="number" id="away_difficulty" min="1" max="5" required value="2">
             </div>
 
             <div class="match-odds-section">
                 <h2>Match Odds</h2>
                 <label for="home_odds">Home Win Odds:</label>
-                <input type="number" step="0.01" id="home_odds" required value="2.13">
+                <input type="number" step="0.01" id="home_odds" required value="1.6">
                 
                 <label for="draw_odds">Draw Odds:</label>
-                <input type="number" step="0.01" id="draw_odds" required value="3.3">
+                <input type="number" step="0.01" id="draw_odds" required value="4">
                 
                 <label for="away_odds">Away Win Odds:</label>
-                <input type="number" step="0.01" id="away_odds" required value="3.25">
+                <input type="number" step="0.01" id="away_odds" required value="5.5">
             </div>
 
             <button type="submit">🔮 Predict Match</button>
@@ -349,45 +349,54 @@
             const maxEntropy = Math.log(3);
             const confidence = 1 - (entropy / maxEntropy);
             
-            // *** NEW WAGERING ADVICE LOGIC ***
+            // *** WAGERING ADVICE LOGIC from repair.txt ***
             const final_probs = { home_win: finalHome, draw: finalDraw, away_win: finalAway };
+            const composite_probs = compositePred;
+
             const aa_diff = formPred.away_win - final_probs.away_win;
             const hh_diff = formPred.home_win - final_probs.home_win;
             const dd_diff = formPred.draw - final_probs.draw;
-            const d_diff = final_probs.draw - compositePred.draw;
-            const a_diff = final_probs.away_win - compositePred.away_win;
-            const h_diff = final_probs.home_win - compositePred.home_win;
-            const h_hs = formPred.home_win - defensePred.home_win;
-            const a_as = formPred.away_win - defensePred.away_win;
+            const d_diff = final_probs.draw - composite_probs.draw;
+            const a_diff = final_probs.away_win - composite_probs.away_win;
+            const h_diff = final_probs.home_win - composite_probs.home_win;
+            
+            const htotal = (defensePred.home_win + formPred.home_win) / 2;
+            const atotal = (defensePred.away_win + formPred.away_win) / 2;
 
-            const htotal = (marketPred.home_win + defensePred.home_win + formPred.home_win) / 3;
-            const atotal = (marketPred.away_win + defensePred.away_win + formPred.away_win) / 3;
-            const hh_adv = htotal / compositePred.home_win;
-            const aa_adv = atotal / compositePred.away_win;
+            const hh_adv = composite_probs.home_win / htotal;
+            const aa_adv = composite_probs.away_win / atotal;
+
             const hh_adv_per = (hh_adv - aa_adv) * 100;
             const aa_adv_per = (aa_adv - hh_adv) * 100;
+            
+            const h_h_adv = composite_probs.home_win / final_probs.home_win;
+            const a_a_adv = composite_probs.away_win / final_probs.away_win;
 
+            const h_adv_per = (h_h_adv - a_a_adv) * 100;
+            const a_adv_per = (a_a_adv - h_h_adv) * 100;
+            
             const homie = h_diff > d_diff && dd_diff > hh_diff;
             const awayie = a_diff > d_diff && dd_diff > aa_diff;
-
-            let bettingAdvice = '';
+            
             const term1 = (hh_diff + a_diff) > h_diff;
             const term2 = (hh_diff + a_diff) > (((a_diff - aa_diff) - (h_diff - aa_diff)));
             const term3 = (aa_diff + h_diff) > a_diff;
             const term4 = (aa_diff + h_diff) > (((h_diff - hh_diff) - (a_diff - hh_diff)));
 
-            if (h_hs > a_as && !(term1 && term2) && hh_adv_per > aa_adv_per && a_diff < d_diff && (term3 && term4)) {
-                bettingAdvice = `Bet on --> Home Win (${homie})`;
-            } else if (h_hs > a_as && !(term1 && term2) && hh_adv_per < aa_adv_per) {
-                bettingAdvice = `Bet on --> Home Draw (${homie})`;
-            } else if (h_hs < a_as && !(term3 && term4) && hh_adv_per < aa_adv_per && h_diff < d_diff && (term1 && term2)) {
-                bettingAdvice = `Bet on --> Away Win (${awayie})`;
-            } else if (h_hs < a_as && !(term3 && term4) && hh_adv_per > aa_adv_per) {
-                bettingAdvice = `Bet on --> Away Draw (${awayie})`;
+            let bettingAdvice = '';
+            if (! (term1 && term2) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per && homie) {
+                bettingAdvice = `Bet on --> Home Win`;
+            } else if (! (term1 && term2) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per) {
+                bettingAdvice = `Bet on --> Home Draw`;
+            } else if (! (term3 && term4) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per && awayie) {
+                bettingAdvice = `Bet on --> Away Win`;
+            } else if (! (term3 && term4) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per) {
+                bettingAdvice = `Bet on --> Away Draw`;
             } else {
                 bettingAdvice = 'AVOID';
             }
-            // *** END OF NEW LOGIC ***
+            
+            // *** END OF WAGERING LOGIC ***
 
             displayResults({
                 predicted_outcome: predictedOutcome,
