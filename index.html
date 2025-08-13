@@ -6,471 +6,438 @@
     <title>Football Predictor</title>
     <style>
         body {
-            [cite_start]font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; [cite: 1]
-            [cite_start]background-color: #f0f2f5; [cite: 2]
-            [cite_start]color: #1c1e21; [cite: 2]
-            [cite_start]line-height: 1.6; [cite: 2]
-            [cite_start]margin: 0; [cite: 2]
-            [cite_start]padding: 20px; [cite: 2]
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
         }
+
         .container {
-            [cite_start]max-width: 800px; [cite: 3]
-            [cite_start]margin: auto; [cite: 4]
-            [cite_start]background: #ffffff; [cite: 4]
-            [cite_start]padding: 20px; [cite: 4]
-            [cite_start]border-radius: 8px; [cite: 4]
-            [cite_start]box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); [cite: 4]
+            max-width: 800px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         h1, h2, h3 {
-            [cite_start]text-align: center; [cite: 5]
-            [cite_start]color: #1877f2; [cite: 6]
+            text-align: center;
+            color: #1877f2;
         }
+
         #prediction-form {
-            [cite_start]display: grid; [cite: 7]
-            [cite_start]grid-template-columns: 1fr; [cite: 7]
-            [cite_start]gap: 20px; [cite: 7]
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
-        table {
+
+        @media (min-width: 600px) {
+            #prediction-form {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .team-section, .match-odds-section {
+            padding: 20px;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            background-color: #f7f8fa;
+        }
+
+        .match-odds-section {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input[type="number"] {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .advice {
-            background-color: #e7f3ff;
-            border-left: 6px solid #1877f2;
             padding: 10px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: 1px solid #dddfe2;
+            box-sizing: border-box;
+        }
+
+        button {
+            grid-column: 1 / -1;
+            padding: 12px 20px;
+            background: #1877f2;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background: #166fe5;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #results {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #ffffff;
+            border: 1px solid #dddfe2;
+        }
+
+        #results p {
+            font-size: 16px;
+        }
+
+        .advice-section {
             margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border: 1px solid #1877f2;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .advice-section h3 {
+            margin-top: 0;
+        }
+
+        .advice-section p {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #1c1e21;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><pre>処 FOOTBALL MATCH PREDICTION ANALYSIS</pre></h1>
-        <hr>
-        <h2 id="predicted-outcome"></h2>
-        <p id="confidence-level"></p>
-        
-        <h2><pre>投 FINAL PROBABILITIES:</pre></h2>
-        <p id="home-win-prob"></p>
-        <p id="draw-prob"></p>
-        <p id="away-win-prob"></p>
+        <h1>⚽ Football Match Predictor</h1>
+        <form id="prediction-form">
+            <div class="team-section">
+                <h2>Home Team</h2>
+                <label for="home_avg_score">Average Score:</label>
+                <input type="number" step="0.01" id="home_avg_score" required value="1.1">
 
-        <h2><pre>笞ｽ EXPECTED GOALS:</pre></h2>
-        <p id="home-expected-goals"></p>
-        <p id="away-expected-goals"></p>
+                <label for="home_avg_conceded">Average Conceded:</label>
+                <input type="number" step="0.01" id="home_avg_conceded" required value="1.05">
 
-        <h2><pre>醇 TEAM QUALITY SCORES:</pre></h2>
-        <p id="home-quality-score"></p>
-        <p id="away-quality-score"></p>
+                <label for="home_score_percentage">Scoring Percentage (%):</label>
+                <input type="number" id="home_score_percentage" required value="75">
 
-        <h2><pre>剥 MODEL BREAKDOWN:</pre></h2>
-        <div id="model-breakdown"></div>
-        
-        <hr>
-        <h2><pre>ｧ WAGING ADVICE: FINAL PROBABILITY vs. COMPOSITE RATING</pre></h2>
-        <hr>
-        
-        <table>
-            <thead>
-                <tr>
-                    [cite_start]<th>Outcome</th> [cite: 55]
-                    [cite_start]<th>Final Prob</th> [cite: 55]
-                    [cite_start]<th>Composite Prob</th> [cite: 55]
-                    [cite_start]<th>Difference</th> [cite: 55]
-                    [cite_start]<th>Advice</th> [cite: 55]
-                </tr>
-            </thead>
-            <tbody>
-                <tr id="home-win-advice"></tr>
-                <tr id="draw-advice"></tr>
-                <tr id="away-win-advice"></tr>
-            </tbody>
-        </table>
+                <label for="home_cleansheet">Clean Sheet (%):</label>
+                <input type="number" id="home_cleansheet" required value="30">
 
-        <div id="betting-advice" class="advice"></div>
+                <label for="home_difficulty">Difficulty (1-5):</label>
+                <input type="number" id="home_difficulty" min="1" max="5" required value="2">
+            </div>
 
-        <div id="ensemble-shift-advice" class="advice"></div>
+            <div class="team-section">
+                <h2>Away Team</h2>
+                <label for="away_avg_score">Average Score:</label>
+                <input type="number" step="0.01" id="away_avg_score" required value="1.15">
 
+                <label for="away_avg_conceded">Average Conceded:</label>
+                <input type="number" step="0.01" id="away_avg_conceded" required value="1.35">
+
+                <label for="away_score_percentage">Scoring Percentage (%):</label>
+                <input type="number" id="away_score_percentage" required value="65">
+
+                <label for="away_cleansheet">Clean Sheet (%):</label>
+                <input type="number" id="away_cleansheet" required value="15">
+
+                <label for="away_difficulty">Difficulty (1-5):</label>
+                <input type="number" id="away_difficulty" min="1" max="5" required value="1">
+            </div>
+
+            <div class="match-odds-section">
+                <h2>Match Odds</h2>
+                <label for="home_odds">Home Win Odds:</label>
+                <input type="number" step="0.01" id="home_odds" required value="2.2">
+                
+                <label for="draw_odds">Draw Odds:</label>
+                <input type="number" step="0.01" id="draw_odds" required value="3.25">
+                
+                <label for="away_odds">Away Win Odds:</label>
+                <input type="number" step="0.01" id="away_odds" required value="3.3">
+            </div>
+
+            <button type="submit">🔮 Predict Match</button>
+        </form>
+        <div id="results" class="hidden">
+        </div>
     </div>
-
     <script>
-        const matchData = {
-            home_avg_score: 1.1,
-            [cite_start]home_avg_conceded: 1.05, [cite: 49]
-            home_score_percentage: 75,
-            home_cleansheet: 30,
-            home_difficulty: 2,
-            away_avg_score: 1.15,
-            away_avg_conceded: 1.35,
-            away_score_percentage: 65,
-            away_cleansheet: 15,
-            away_difficulty: 1,
-            home_odds: 2.2,
-            draw_odds: 3.25,
-            away_odds: 3.3
-        };
+        // --- Utility Functions ---
+        const factorial = (n) => (n <= 1 ? 1 : n * factorial(n - 1));
 
-        const weights = {
-            'poisson': 0.25,
-            'form_based': 0.20,
-            'defensive_strength': 0.15,
-            'market_sentiment': 0.20,
-            'composite_rating': 0.20
-        };
-
-        function poissonProb(k, lam) {
-            if (lam <= 0) {
-                return k === 0 ? 1.0 : 0.0;
-            }
+        const poissonProb = (k, lam) => {
+            if (lam <= 0) return k === 0 ? 1.0 : 0.0;
             return (Math.pow(lam, k) * Math.exp(-lam)) / factorial(k);
-        }
+        };
+        
+        // --- Prediction Models ---
+        function calculatePoisson(data) {
+            const homeAttackStrength = data.home_avg_score * (6 - data.away_difficulty) / 5;
+            const awayAttackStrength = data.away_avg_score * (6 - data.home_difficulty) / 5;
+            const homeDefenseStrength = data.home_avg_conceded * (data.away_difficulty / 5);
+            const awayDefenseStrength = data.away_avg_conceded * (data.home_difficulty / 5);
 
-        function factorial(n) {
-            if (n === 0 || n === 1) {
-                return 1;
-            }
-            let result = 1;
-            for (let i = 2; i <= n; i++) {
-                result *= i;
-            }
-            return result;
-        }
-
-        function calculatePoissonProbabilities(data) {
-            const home_attack_strength = data.home_avg_score * (6 - data.away_difficulty) / 5;
-            const away_attack_strength = data.away_avg_score * (6 - data.home_difficulty) / 5;
-            [cite_start]const home_defense_strength = data.home_avg_conceded * (data.away_difficulty / 5); [cite: 11]
-            const away_defense_strength = data.away_avg_conceded * (data.home_difficulty / 5);
-
-            const home_expected_goals = (home_attack_strength + away_defense_strength) / 2;
-            const away_expected_goals = (away_attack_strength + home_defense_strength) / 2;
-
-            const max_goals = 6;
-            const prob_matrix = Array.from({ length: max_goals + 1 }, () => Array(max_goals + 1).fill(0));
-
-            [cite_start]for (let h = 0; h <= max_goals; h++) { [cite: 12]
-                [cite_start]for (let a = 0; a <= max_goals; a++) { [cite: 12]
-                    const prob_h = poissonProb(h, home_expected_goals);
-                    const prob_a = poissonProb(a, away_expected_goals);
-                    prob_matrix[h][a] = prob_h * prob_a;
-                }
-            }
-
-            let home_win = 0, draw = 0, away_win = 0;
-            for (let h = 0; h <= max_goals; h++) {
-                for (let a = 0; a <= max_goals; a++) {
-                    [cite_start]if (h > a) home_win += prob_matrix[h][a]; [cite: 13]
-                    if (h === a) draw += prob_matrix[h][a];
-                    [cite_start]if (h < a) away_win += prob_matrix[h][a]; [cite: 14]
-                }
-            }
-
-            return {
-                home_win,
-                draw,
-                away_win,
-                [cite_start]expected_goals: { home: home_expected_goals, away: away_expected_goals } [cite: 15]
-            };
-        }
-
-        function calculateFormBasedPrediction(data) {
-            let home_form = data.home_score_percentage / 100.0;
-            let away_form = data.away_score_percentage / 100.0;
-
-            const total_form = home_form + away_form;
-            [cite_start]let home_form_advantage = total_form > 0 ? home_form / total_form : 0.5; [cite: 17]
-            [cite_start]let away_form_advantage = total_form > 0 ? away_form / total_form : 0.5; [cite: 17]
-
-            home_form_advantage += 0.07;
-
-            [cite_start]const form_sum = home_form_advantage + away_form_advantage; [cite: 18]
-            [cite_start]home_form_advantage /= form_sum; [cite: 18]
-            [cite_start]away_form_advantage /= form_sum; [cite: 18]
-
-            const form_difference = Math.abs(home_form_advantage - away_form_advantage);
-            let draw_prob = 0.35 - (form_difference * 0.2);
-            [cite_start]draw_prob = Math.max(0.15, Math.min(0.45, draw_prob)); [cite: 19]
-
-            const remaining_prob = 1.0 - draw_prob;
-            const home_win_prob = home_form_advantage * remaining_prob;
-            const away_win_prob = away_form_advantage * remaining_prob;
-
-            [cite_start]return { home_win: home_win_prob, draw: draw_prob, away_win: away_win_prob }; [cite: 20]
-        }
-
-        function calculateDefensiveStrengthModel(data) {
-            const home_defense_rating = (data.home_cleansheet / 100.0) * (1 / Math.max(0.1, data.home_avg_conceded));
-            const away_defense_rating = (data.away_cleansheet / 100.0) * (1 / Math.max(0.1, data.away_avg_conceded));
-
-            [cite_start]const home_attack_vs_away_defense = data.home_avg_score / Math.max(0.1, data.away_avg_conceded); [cite: 21]
-            [cite_start]const away_attack_vs_home_defense = data.away_avg_score / Math.max(0.1, data.home_avg_conceded); [cite: 21]
-
-            const total_attack_ratio = home_attack_vs_away_defense + away_attack_vs_home_defense;
-            [cite_start]let home_attack_norm = total_attack_ratio > 0 ? home_attack_vs_away_defense / total_attack_ratio : 0.5; [cite: 22]
-            [cite_start]let away_attack_norm = total_attack_ratio > 0 ? away_attack_vs_home_defense / total_attack_ratio : 0.5; [cite: 22]
+            const homeExpectedGoals = (homeAttackStrength + awayDefenseStrength) / 2;
+            const awayExpectedGoals = (awayAttackStrength + homeDefenseStrength) / 2;
             
-            const avg_defense_strength = (home_defense_rating + away_defense_rating) / 2;
-            const draw_boost = Math.min(0.15, avg_defense_strength * 0.3);
+            let homeWin = 0, draw = 0, awayWin = 0;
+            const maxGoals = 6;
 
-            const base_draw = 0.25 + draw_boost;
-            const remaining_prob = 1.0 - base_draw;
-
-            return {
-                [cite_start]home_win: home_attack_norm * remaining_prob, [cite: 23]
-                draw: base_draw,
-                away_win: away_attack_norm * remaining_prob
-            };
+            for (let h = 0; h <= maxGoals; h++) {
+                for (let a = 0; a <= maxGoals; a++) {
+                    const prob = poissonProb(h, homeExpectedGoals) * poissonProb(a, awayExpectedGoals);
+                    if (h > a) homeWin += prob;
+                    else if (h < a) awayWin += prob;
+                    else draw += prob;
+                }
+            }
+            return { home_win: homeWin, draw, away_win: awayWin, expected_goals: { home: homeExpectedGoals, away: awayExpectedGoals } };
         }
 
-        function calculateMarketSentimentModel(data) {
-            [cite_start]const home_implied = 1 / data.home_odds; [cite: 24]
-            [cite_start]const draw_implied = 1 / data.draw_odds; [cite: 24]
-            [cite_start]const away_implied = 1 / data.away_odds; [cite: 24]
+        function calculateFormBased(data) {
+            let homeForm = data.home_score_percentage / 100.0;
+            let awayForm = data.away_score_percentage / 100.0;
+            const totalForm = homeForm + awayForm;
 
-            const total_implied = home_implied + draw_implied + away_implied;
+            let homeFormAdvantage = totalForm > 0 ? homeForm / totalForm : 0.5;
+            let awayFormAdvantage = totalForm > 0 ? awayForm / totalForm : 0.5;
 
-            const home_prob = home_implied / total_implied;
-            const draw_prob = draw_implied / total_implied;
-            [cite_start]const away_prob = away_implied / total_implied; [cite: 25]
+            homeFormAdvantage += 0.07; 
 
-            return { home_win: home_prob, draw: draw_prob, away_win: away_prob };
+            const formSum = homeFormAdvantage + awayFormAdvantage;
+            homeFormAdvantage /= formSum;
+            awayFormAdvantage /= formSum;
+            
+            const formDifference = Math.abs(homeFormAdvantage - awayFormAdvantage);
+            let drawProb = Math.max(0.15, Math.min(0.45, 0.35 - (formDifference * 0.2)));
+
+            const remainingProb = 1.0 - drawProb;
+            return { home_win: homeFormAdvantage * remainingProb, draw: drawProb, away_win: awayFormAdvantage * remainingProb };
+        }
+
+        function calculateDefensiveStrength(data) {
+            const homeDefenseRating = (data.home_cleansheet / 100.0) * (1 / Math.max(0.1, data.home_avg_conceded));
+            const awayDefenseRating = (data.away_cleansheet / 100.0) * (1 / Math.max(0.1, data.away_avg_conceded));
+
+            const homeAttackVsAwayDefense = data.home_avg_score / Math.max(0.1, data.away_avg_conceded);
+            const awayAttackVsHomeDefense = data.away_avg_score / Math.max(0.1, data.home_avg_conceded);
+            
+            const totalAttackRatio = homeAttackVsAwayDefense + awayAttackVsHomeDefense;
+            const homeAttackNorm = totalAttackRatio > 0 ? homeAttackVsAwayDefense / totalAttackRatio : 0.5;
+            const awayAttackNorm = totalAttackRatio > 0 ? awayAttackVsHomeDefense / totalAttackRatio : 0.5;
+            const avgDefenseStrength = (homeDefenseRating + awayDefenseRating) / 2;
+            const drawBoost = Math.min(0.15, avgDefenseStrength * 0.3);
+            const baseDraw = 0.25 + drawBoost;
+            const remainingProb = 1.0 - baseDraw;
+            return { home_win: homeAttackNorm * remainingProb, draw: baseDraw, away_win: awayAttackNorm * remainingProb };
         }
         
-        function calculateCompositeRatingModel(data) {
-            const home_quality = (
-                data.home_avg_score * 0.3 +
-                (1 / Math.max(0.1, data.home_avg_conceded)) * 0.2 +
-                (data.home_score_percentage / 100) * 0.25 +
-                (data.home_cleansheet / 100) [cite_start]* 0.15 + [cite: 27]
-                ((6 - data.home_difficulty) / 5) * 0.1
-            );
-
-            const away_quality = (
-                data.away_avg_score * 0.3 +
-                (1 / Math.max(0.1, data.away_avg_conceded)) * 0.2 +
-                (data.away_score_percentage / 100) [cite_start]* 0.25 + [cite: 28]
-                (data.away_cleansheet / 100) [cite_start]* 0.15 + [cite: 28]
-                ((6 - data.away_difficulty) / 5) * 0.1
-            );
-            
-            const quality_diff = home_quality - away_quality;
-            const quality_sum = home_quality + away_quality;
-
-            let home_base_prob = quality_sum > 0 ? [cite_start]1 / (1 + Math.exp(-quality_diff * 3)) : 0.5; [cite: 29]
-            [cite_start]let away_base_prob = 1 - home_base_prob; [cite: 29]
-
-            [cite_start]const context_factor = Math.sqrt(home_quality * away_quality); [cite: 30]
-            let draw_prob = 0.2 + (context_factor * 0.15);
-            draw_prob = Math.min(0.4, draw_prob);
-
-            const remaining = 1.0 - draw_prob;
-            const home_win_prob = home_base_prob * remaining;
-            const away_win_prob = away_base_prob * remaining;
-
+        function calculateMarketSentiment(data) {
+            const homeImplied = 1 / data.home_odds;
+            const drawImplied = 1 / data.draw_odds;
+            const awayImplied = 1 / data.away_odds;
+            const totalImplied = homeImplied + drawImplied + awayImplied;
             return {
-                [cite_start]home_win: home_win_prob, [cite: 31]
-                [cite_start]draw: draw_prob, [cite: 31]
-                [cite_start]away_win: away_win_prob, [cite: 31]
-                home_quality: home_quality,
-                away_quality: away_quality
+                home_win: homeImplied / totalImplied,
+                draw: drawImplied / totalImplied,
+                away_win: awayImplied / totalImplied
             };
         }
 
-        function predictMatch(data) {
-            const poisson_pred = calculatePoissonProbabilities(data);
-            const form_pred = calculateFormBasedPrediction(data);
-            const defense_pred = calculateDefensiveStrengthModel(data);
-            const market_pred = calculateMarketSentimentModel(data);
-            const composite_pred = calculateCompositeRatingModel(data);
+        function calculateCompositeRating(data) {
+            const homeQuality = (data.home_avg_score * 0.3) +
+                                ((1 / Math.max(0.1, data.home_avg_conceded)) * 0.2) +
+                                ((data.home_score_percentage / 100) * 0.25) +
+                                ((data.home_cleansheet / 100) * 0.15) +
+                                (((6 - data.home_difficulty) / 5) * 0.1);
+            const awayQuality = (data.away_avg_score * 0.3) +
+                                ((1 / Math.max(0.1, data.away_avg_conceded)) * 0.2) +
+                                ((data.away_score_percentage / 100) * 0.25) +
+                                ((data.away_cleansheet / 100) * 0.15) +
+                                (((6 - data.away_difficulty) / 5) * 0.1);
+            const qualityDiff = homeQuality - awayQuality;
+            const qualitySum = homeQuality + awayQuality;
+            
+            const homeBaseProb = qualitySum > 0 ? 1 / (1 + Math.exp(-qualityDiff * 3)) : 0.5;
+            const awayBaseProb = 1 - homeBaseProb;
+            const contextFactor = Math.sqrt(homeQuality * awayQuality);
+            let drawProb = Math.min(0.4, 0.2 + (contextFactor * 0.15));
+            const remaining = 1.0 - drawProb;
+            return {
+                home_win: homeBaseProb * remaining,
+                draw: drawProb,
+                away_win: awayBaseProb * remaining,
+                home_quality: homeQuality,
+                away_quality: awayQuality
+            };
+        }
 
-            let final_home = (
-                [cite_start]poisson_pred.home_win * weights.poisson + [cite: 33]
-                [cite_start]form_pred.home_win * weights.form_based + [cite: 33]
-                [cite_start]defense_pred.home_win * weights.defensive_strength + [cite: 33]
-                [cite_start]market_pred.home_win * weights.market_sentiment + [cite: 33]
-                [cite_start]composite_pred.home_win * weights.composite_rating [cite: 33]
-            );
+        // --- Main Prediction Logic ---
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
 
-            let final_draw = (
-                [cite_start]poisson_pred.draw * weights.poisson + [cite: 34]
-                [cite_start]form_pred.draw * weights.form_based + [cite: 34]
-                [cite_start]defense_pred.draw * weights.defensive_strength + [cite: 34]
-                [cite_start]market_pred.draw * weights.market_sentiment + [cite: 34]
-                [cite_start]composite_pred.draw * weights.composite_rating [cite: 35]
-            );
+            const data = {
+                home_avg_score: parseFloat(document.getElementById('home_avg_score').value),
+                home_avg_conceded: parseFloat(document.getElementById('home_avg_conceded').value),
+                home_score_percentage: parseFloat(document.getElementById('home_score_percentage').value),
+                home_cleansheet: parseFloat(document.getElementById('home_cleansheet').value),
+                home_difficulty: parseInt(document.getElementById('home_difficulty').value),
+                away_avg_score: parseFloat(document.getElementById('away_avg_score').value),
+                away_avg_conceded: parseFloat(document.getElementById('away_avg_conceded').value),
+                away_score_percentage: parseFloat(document.getElementById('away_score_percentage').value),
+                away_cleansheet: parseFloat(document.getElementById('away_cleansheet').value),
+                away_difficulty: parseInt(document.getElementById('away_difficulty').value),
+                home_odds: parseFloat(document.getElementById('home_odds').value),
+                draw_odds: parseFloat(document.getElementById('draw_odds').value),
+                away_odds: parseFloat(document.getElementById('away_odds').value),
+            };
+            const weights = {
+                poisson: 0.25,
+                form_based: 0.20,
+                defensive_strength: 0.15,
+                market_sentiment: 0.20,
+                composite_rating: 0.20
+            };
 
-            let final_away = (
-                poisson_pred.away_win * weights.poisson +
-                form_pred.away_win * weights.form_based +
-                defense_pred.away_win * weights.defensive_strength +
-                market_pred.away_win * weights.market_sentiment +
-                [cite_start]composite_pred.away_win * weights.composite_rating [cite: 36]
-            );
+            // Calculate all model predictions
+            const poissonPred = calculatePoisson(data);
+            const formPred = calculateFormBased(data);
+            const defensePred = calculateDefensiveStrength(data);
+            const marketPred = calculateMarketSentiment(data);
+            const compositePred = calculateCompositeRating(data);
+            
+            // Calculate final ensemble probabilities
+            let finalHome = (poissonPred.home_win * weights.poisson) + (formPred.home_win * weights.form_based) + (defensePred.home_win * weights.defensive_strength) + (marketPred.home_win * weights.market_sentiment) + (compositePred.home_win * weights.composite_rating);
+            let finalDraw = (poissonPred.draw * weights.poisson) + (formPred.draw * weights.form_based) + (defensePred.draw * weights.defensive_strength) + (marketPred.draw * weights.market_sentiment) + (compositePred.draw * weights.composite_rating);
+            let finalAway = (poissonPred.away_win * weights.poisson) + (formPred.away_win * weights.form_based) + (defensePred.away_win * weights.defensive_strength) + (marketPred.away_win * weights.market_sentiment) + (compositePred.away_win * weights.composite_rating);
+            
+            const total = finalHome + finalDraw + finalAway;
+            finalHome /= total;
+            finalDraw /= total;
+            finalAway /= total;
+            
+            const maxProb = Math.max(finalHome, finalDraw, finalAway);
+            let predictedOutcome = "Away Win";
+            if (maxProb === finalHome) predictedOutcome = "Home Win";
+            else if (maxProb === finalDraw) predictedOutcome = "Draw";
+            
+            const probs = [finalHome, finalDraw, finalAway];
+            const entropy = -probs.reduce((acc, p) => acc + p * Math.log(p + 1e-10), 0);
+            const maxEntropy = Math.log(3);
+            const confidence = 1 - (entropy / maxEntropy);
+            
+            // *** WAGERING ADVICE LOGIC from repair.txt ***
+            const final_probs = { home_win: finalHome, draw: finalDraw, away_win: finalAway };
+            const composite_probs = compositePred;
 
-            const total = final_home + final_draw + final_away;
-            final_home /= total;
-            final_draw /= total;
-            final_away /= total;
+            const aa_diff = formPred.away_win - final_probs.away_win;
+            const hh_diff = formPred.home_win - final_probs.home_win;
+            const dd_diff = formPred.draw - final_probs.draw;
+            const d_diff = final_probs.draw - composite_probs.draw;
+            const a_diff = final_probs.away_win - composite_probs.away_win;
+            const h_diff = final_probs.home_win - composite_probs.home_win;
+            
+            const htotal = (defensePred.home_win + formPred.home_win) / 2;
+            const atotal = (defensePred.away_win + formPred.away_win) / 2;
 
-            [cite_start]const max_prob = Math.max(final_home, final_draw, final_away); [cite: 37]
-            let predicted_outcome;
-            if (max_prob === final_home) {
-                predicted_outcome = "Home Win";
-            } else if (max_prob === final_draw) {
-                predicted_outcome = "Draw";
+            const hh_adv = composite_probs.home_win / htotal;
+            const aa_adv = composite_probs.away_win / atotal;
+            const hh_adv_per = (hh_adv - aa_adv) * 100;
+            const aa_adv_per = (aa_adv - hh_adv) * 100;
+            const h_h_adv = composite_probs.home_win / final_probs.home_win;
+            const a_a_adv = composite_probs.away_win / final_probs.away_win;
+
+            const h_adv_per = (h_h_adv - a_a_adv) * 100;
+            const a_adv_per = (a_a_adv - h_h_adv) * 100;
+            
+            const homie = h_diff > d_diff && dd_diff > hh_diff;
+            const awayie = a_diff > d_diff && dd_diff > aa_diff;
+            
+            const term1 = (hh_diff + a_diff) > h_diff;
+            const term2 = (hh_diff + a_diff) > (((a_diff - aa_diff) - (h_diff - aa_diff)));
+            const term3 = (aa_diff + h_diff) > a_diff;
+            const term4 = (aa_diff + h_diff) > (((h_diff - hh_diff) - (a_diff - hh_diff)));
+
+            // --- NEW: Define boolean checks from repair.txt ---
+            const h_true = compositePred.home_win > final_probs.home_win && (marketPred.home_win > marketPred.away_win || defensePred.home_win > defensePred.away_win);
+            const a_true = compositePred.away_win > final_probs.away_win && (marketPred.away_win > marketPred.home_win || defensePred.home_win < defensePred.away_win);
+            const hh_conf = formPred.home_win > formPred.away_win;
+            const aa_conf = formPred.home_win < formPred.away_win;
+            
+            let bettingAdvice = '';
+            // --- UPDATED: Wagering advice strings now include the boolean checks ---
+            if (! (term1 && term2) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per && homie) {
+                bettingAdvice = `Bet on --> Home win {${((aa_diff+h_diff)>((h_diff - hh_diff) - (a_diff - hh_diff))) && h_true}} {${hh_conf}}`;
+            } else if (! (term1 && term2) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per) {
+                bettingAdvice = `Bet on --> Home draw {${((aa_diff+h_diff)>((h_diff - hh_diff) - (a_diff - hh_diff))) && h_true}}`;
+            } else if (! (term3 && term4) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per && awayie) {
+                bettingAdvice = `Bet on --> Away win {${((hh_diff+a_diff)>((a_diff - aa_diff) - (h_diff - aa_diff))) && a_true}} {${aa_conf}}`;
+            } else if (! (term3 && term4) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per) {
+                bettingAdvice = `Bet on --> Away draw {${((hh_diff+a_diff)>((a_diff - aa_diff) - (h_diff - aa_diff))) && a_true}}`;
             } else {
-                predicted_outcome = "Away Win";
+                bettingAdvice = 'AVOID';
             }
+            
+            // *** END OF WAGERING LOGIC ***
 
-            const probs = [final_home, final_draw, final_away];
-            [cite_start]const entropy = -probs.reduce((acc, p) => acc + p * Math.log(p + 1e-10), 0); [cite: 38]
-            const max_entropy = Math.log(3);
-            const confidence = 1 - (entropy / max_entropy);
-
-            return {
-                predicted_outcome: predicted_outcome,
-                probabilities: {
-                    [cite_start]home_win: final_home, [cite: 42]
-                    [cite_start]draw: final_draw, [cite: 42]
-                    [cite_start]away_win: final_away [cite: 42]
-                },
+            displayResults({
+                predicted_outcome: predictedOutcome,
+                probabilities: { home_win: finalHome, draw: finalDraw, away_win: finalAway },
                 confidence: confidence,
-                expected_goals: poisson_pred.expected_goals,
-                model_breakdown: {
-                    [cite_start]poisson: poisson_pred, [cite: 43]
-                    [cite_start]form_based: form_pred, [cite: 44]
-                    [cite_start]defensive_strength: defense_pred, [cite: 45]
-                    [cite_start]market_sentiment: market_pred, [cite: 46]
-                    [cite_start]composite_rating: composite_pred [cite: 47]
-                },
-                [cite_start]team_quality_scores: { [cite: 48]
-                    home: composite_pred.home_quality,
-                    away: composite_pred.away_quality
-                }
-            };
-        }
-        
-        function formatPercent(value) {
-            return (value * 100).toFixed(1) + '%';
-        }
+                expected_goals: poissonPred.expected_goals,
+                model_breakdown: { poisson: poissonPred, form_based: formPred, defensive_strength: defensePred, market_sentiment: marketPred, composite_rating: compositePred },
+                team_quality_scores: { home: compositePred.home_quality, away: compositePred.away_quality }
+            }, bettingAdvice);
+        });
 
-        const prediction = predictMatch(matchData);
+        function displayResults(prediction, advice) {
+            const toPercent = (val) => (val * 100).toFixed(1) + '%';
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="advice-section">
+                    <h3>Wagering Advice</h3>
+                    <p>${advice}</p>
+                </div>
+                <h2>📊 Prediction Analysis</h2>
+                <p><strong>Predicted Outcome:</strong> ${prediction.predicted_outcome}</p>
+                <p><strong>Confidence Level:</strong> ${toPercent(prediction.confidence)}</p>
+                
+                <h3>Final Probabilities:</h3>
+                <p>Home Win: ${toPercent(prediction.probabilities.home_win)}</p>
+                <p>Draw: ${toPercent(prediction.probabilities.draw)}</p>
+                <p>Away Win: ${toPercent(prediction.probabilities.away_win)}</p>
 
-        document.getElementById('predicted-outcome').innerText = `Predicted Outcome: ${prediction.predicted_outcome}`;
-        document.getElementById('confidence-level').innerText = `Confidence Level: ${formatPercent(prediction.confidence)}`;
-        
-        document.getElementById('home-win-prob').innerText = `Home Win: ${formatPercent(prediction.probabilities.home_win)}`;
-        document.getElementById('draw-prob').innerText = `Draw:     ${formatPercent(prediction.probabilities.draw)}`;
-        document.getElementById('away-win-prob').innerText = `Away Win: ${formatPercent(prediction.probabilities.away_win)}`;
-        
-        document.getElementById('home-expected-goals').innerText = `Home Team: ${prediction.expected_goals.home.toFixed(2)}`;
-        document.getElementById('away-expected-goals').innerText = `Away Team: ${prediction.expected_goals.away.toFixed(2)}`;
-        
-        [cite_start]document.getElementById('home-quality-score').innerText = `Home Team: ${prediction.team_quality_scores.home.toFixed(3)}`; [cite: 51]
-        [cite_start]document.getElementById('away-quality-score').innerText = `Away Team: ${prediction.team_quality_scores.away.toFixed(3)}`; [cite: 51]
-        
-        const modelBreakdownDiv = document.getElementById('model-breakdown');
-        for (const model_name in prediction.model_breakdown) {
-            const probs = prediction.model_breakdown[model_name];
-            const modelDiv = document.createElement('div');
-            modelDiv.innerHTML = `
-                <h3>${model_name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</h3>
-                <p>H: ${formatPercent(probs.home_win)} | D: ${formatPercent(probs.draw)} | [cite_start]A: ${formatPercent(probs.away_win)}</p> [cite: 52]
+                <h3>Expected Goals:</h3>
+                <p>Home Team: ${prediction.expected_goals.home.toFixed(2)}</p>
+                <p>Away Team: ${prediction.expected_goals.away.toFixed(2)}</p>
+
+                <h3>Team Quality Scores:</h3>
+                <p>Home Team: ${prediction.team_quality_scores.home.toFixed(3)}</p>
+                <p>Away Team: ${prediction.team_quality_scores.away.toFixed(3)}</p>
+                
+                <h3>Model Breakdown:</h3>
+                ${Object.entries(prediction.model_breakdown).map(([name, probs]) => `
+                    <p><strong>${name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</strong> 
+                    H: ${toPercent(probs.home_win)} | D: ${toPercent(probs.draw)} | A: ${toPercent(probs.away_win)}</p>
+                `).join('')}
             `;
-            modelBreakdownDiv.appendChild(modelDiv);
+            resultsDiv.classList.remove('hidden');
         }
-
-        const final_probs = prediction.probabilities;
-        const composite_probs = prediction.model_breakdown.composite_rating;
-        const form_preds = prediction.model_breakdown.form_based;
-        const defense_preds = prediction.model_breakdown.defensive_strength;
-        const market_preds = prediction.model_breakdown.market_sentiment;
-
-        [cite_start]const h_diff = final_probs.home_win - composite_probs.home_win; [cite: 53]
-        [cite_start]const d_diff = final_probs.draw - composite_probs.draw; [cite: 53]
-        [cite_start]const a_diff = final_probs.away_win - composite_probs.away_win; [cite: 53]
-        const hh_diff = form_preds.home_win - final_probs.home_win;
-        const dd_diff = form_preds.draw - final_probs.draw;
-        const aa_diff = form_preds.away_win - final_probs.away_win;
-        const h_hs = form_preds.home_win - defense_preds.home_win;
-        const a_as = form_preds.away_win - defense_preds.away_win;
-
-        const h_true = composite_probs.home_win > final_probs.home_win && (market_preds.home_win > market_preds.away_win || defense_preds.home_win > defense_preds.away_win);
-        const a_true = composite_probs.away_win > final_probs.away_win && (market_preds.away_win > market_preds.home_win || defense_preds.home_win < defense_preds.away_win);
-        const hh_conf = form_preds.home_win > form_preds.away_win;
-        const aa_conf = form_preds.home_win < form_preds.away_win;
-        
-        const htotal = (defense_preds.home_win + form_preds.home_win) / 2;
-        const atotal = (defense_preds.away_win + form_preds.away_win) / 2;
-        const hh_adv = composite_probs.home_win / htotal;
-        const aa_adv = composite_probs.away_win / atotal;
-        const h_h_adv = composite_probs.home_win / final_probs.home_win;
-        const a_a_adv = composite_probs.away_win / final_probs.away_win;
-        
-        const h_adv_per = (h_h_adv - a_a_adv) * 100;
-        const a_adv_per = (a_a_adv - h_h_adv) * 100;
-        const hh_adv_per = (hh_adv - aa_adv) * 100;
-        const aa_adv_per = (aa_adv - hh_adv) * 100;
-        
-        const homie = h_diff > d_diff && dd_diff > hh_diff;
-        const awayie = a_diff > d_diff && dd_diff > aa_diff;
-
-        document.getElementById('home-win-advice').innerHTML = `
-            <td>Home Win</td>
-            <td>${formatPercent(final_probs.home_win)}</td>
-            <td>${formatPercent(composite_probs.home_win)}</td>
-            <td>${(h_diff * 100).toFixed(1)}%</td>
-            <td>${((aa_diff + h_diff) > ((h_diff - hh_diff) - (a_diff - hh_diff)))} ${((h_diff - hh_diff) - (a_diff - hh_diff)).toFixed(1)}% | [cite_start]${hh_diff < ((h_diff - hh_diff) - (a_diff - hh_diff))} ${h_hs > a_as}</td> [cite: 55]
-        `;
-        
-        document.getElementById('draw-advice').innerHTML = `
-            <td>Draw</td>
-            <td>${formatPercent(final_probs.draw)}</td>
-            <td>${formatPercent(composite_probs.draw)}</td>
-            <td>${(d_diff * 100).toFixed(1)}%</td>
-            [cite_start]<td>${(d_diff + dd_diff).toFixed(1)}% -> ${(d_diff > dd_diff)}</td> [cite: 56]
-        `;
-
-        document.getElementById('away-win-advice').innerHTML = `
-            <td>Away Win</td>
-            <td>${formatPercent(final_probs.away_win)}</td>
-            <td>${formatPercent(composite_probs.away_win)}</td>
-            <td>${(a_diff * 100).toFixed(1)}%</td>
-            <td>${(hh_diff + a_diff) > (((a_diff - aa_diff) - (h_diff - aa_diff)))} ${((a_diff - aa_diff) - (h_diff - aa_diff)).toFixed(1)}% | [cite_start]${aa_diff < ((a_diff - aa_diff) - (h_diff - aa_diff))} ${h_hs < a_as}</td> [cite: 57, 58]
-        `;
-
-        let bettingAdviceText;
-        if (!((hh_diff + a_diff) > h_diff && (hh_diff + a_diff) > (((a_diff - aa_diff) - (h_diff - aa_diff)))) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per && homie) {
-            [cite_start]bettingAdviceText = `bet on --> Home win ${((aa_diff + h_diff) > ((h_diff - hh_diff) - (a_diff - hh_diff))) && h_true}  ${hh_conf}`; [cite: 59]
-        } else if (!((hh_diff + a_diff) > h_diff && (hh_diff + a_diff) > (((a_diff - aa_diff) - (h_diff - aa_diff)))) && hh_adv_per > aa_adv_per && h_adv_per > a_adv_per) {
-            bettingAdviceText = `bet on --> Home draw     ${((aa_diff + h_diff) > ((h_diff - hh_diff) - (a_diff - hh_diff))) && h_true}`;
-        } else if (!((aa_diff + h_diff) > a_diff && (aa_diff + h_diff) > (((h_diff - hh_diff) - (a_diff - hh_diff)))) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per && awayie) {
-            [cite_start]bettingAdviceText = `bet on --> Away win   ${((hh_diff + a_diff) > ((a_diff - aa_diff) - (h_diff - aa_diff))) && a_true}    ${aa_conf}`; [cite: 60]
-        } else if (!((aa_diff + h_diff) > a_diff && (aa_diff + h_diff) > (((h_diff - hh_diff) - (a_diff - hh_diff)))) && hh_adv_per < aa_adv_per && h_adv_per < a_adv_per) {
-            bettingAdviceText = `bet on --> Away draw   ${((hh_diff + a_diff) > ((a_diff - aa_diff) - (h_diff - aa_diff))) && a_true}`;
-        } else {
-            bettingAdviceText = 'AVOID';
-        }
-        document.getElementById('betting-advice').innerText = bettingAdviceText;
-
-        let ensembleShiftAdviceText;
-        if (h_diff > d_diff && h_diff > a_diff && h_diff > 0) {
-            [cite_start]ensembleShiftAdviceText = "The ensemble model shows the strongest positive shift for a **Home Win** compared to the Composite Rating model. This suggests that the other models (Poisson, Form, Defense, Market) collectively find more value in a home victory than the Composite model does on its own."; [cite: 61]
-        } else if (d_diff > h_diff && d_diff > a_diff && d_diff > 0) {
-            [cite_start]ensembleShiftAdviceText = "The ensemble model shows the strongest positive shift for a **Draw** compared to the Composite Rating model. This suggests that the other models (Poisson, Form, Defense, Market) collectively find more value in a draw than the Composite model does on its own."; [cite: 62]
-        } else if (a_diff > h_diff && a_diff > d_diff && a_diff > 0) {
-            [cite_start]ensembleShiftAdviceText = "The ensemble model shows the strongest positive shift for a **Away Win** compared to the Composite Rating model."; [cite: 63]
-        }
-        document.getElementById('ensemble-shift-advice').innerHTML = ensembleShiftAdviceText;
-
     </script>
 </body>
 </html>
