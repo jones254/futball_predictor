@@ -3,321 +3,544 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Football Prediction Evaluator</title>
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Set base font family -->
+    <title>Team Power Rating Calculator</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
         }
-        /* Custom styles for result feedback */
-        .reason-item.positive {
-            color: #16a34a; /* green-600 */
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
-        .reason-item.negative {
-            color: #dc2626; /* red-600 */
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
         }
-        .reason-item.neutral {
-            color: #6b7280; /* gray-500 */
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .team-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .recent-matches {
+            margin-top: 20px;
+        }
+
+        .recent-matches h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .match-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .match-row select {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+
+        .match-row select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .match-row input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-align: center;
+        }
+
+        .result-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .result-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .result-section p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+            font-size: 1.05em;
+        }
+
+        .winner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .teams-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚽ Team Power Rating Calculator</h1>
+            <p>Analyze team performance based on recent form and opponent strength</p>
+        </div>
 
-    <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-2xl">
-        
-        <!-- Header -->
-        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2">Smart Football Prediction Evaluator</h1>
-        <p class="text-center text-gray-500 mb-6">Rate a prediction based on team stats, odds, and realism.</p>
-
-        <!-- Main Form -->
-        <form id="predictionForm" class="space-y-6">
-
-            <!-- Section 1: Team Stats -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Team Stats</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Home Team -->
-                    <div class="space-y-4 p-4 bg-gray-50 rounded-lg border">
-                        <h3 class="font-medium text-lg text-center">Home Team</h3>
-                        <div>
-                            <label for="home_avg_score" class="block text-sm font-medium text-gray-700 mb-1">Avg. Score</label>
-                            <input type="number" step="0.01" id="home_avg_score" value="2.75" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+        <div class="content">
+            <div class="teams-grid">
+                <!-- HOME TEAM -->
+                <div class="team-card">
+                    <h2>🏠 HOME</h2>
+                    <div class="form-group">
+                        <label>Team Name</label>
+                        <input type="text" id="homeName" value="HOME" placeholder="Enter home team name">
+                    </div>
+                    <div class="form-group">
+                        <label>Current Points</label>
+                        <input type="number" id="homePoints" value="45" placeholder="League points">
+                    </div>
+                    <div class="form-group">
+                        <label>Games Played</label>
+                        <input type="number" id="homeGames" value="26" placeholder="Total games">
+                    </div>
+                    <div class="recent-matches">
+                        <h3>Recent 5 Matches</h3>
+                        <div class="match-row">
+                            <select id="homeResult1">
+                                <option value="win">Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss" selected>Loss</option>
+                            </select>
+                            <input type="number" id="homeOpp1" value="35" placeholder="Opponent pts">
                         </div>
-                        <div>
-                            <label for="home_avg_conceded" class="block text-sm font-medium text-gray-700 mb-1">Avg. Conceded</label>
-                            <input type="number" step="0.01" id="home_avg_conceded" value="0.83" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <div class="match-row">
+                            <select id="homeResult2">
+                                <option value="win">Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss" selected>Loss</option>
+                            </select>
+                            <input type="number" id="homeOpp2" value="36" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="homeResult3">
+                                <option value="win">Win</option>
+                                <option value="draw" selected>Draw</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                            <input type="number" id="homeOpp3" value="54" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="homeResult4">
+                                <option value="win">Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss" selected>Loss</option>
+                            </select>
+                            <input type="number" id="homeOpp4" value="27" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="homeResult5">
+                                <option value="win" selected>Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                            <input type="number" id="homeOpp5" value="25" placeholder="Opponent pts">
                         </div>
                     </div>
-                    <!-- Away Team -->
-                    <div class="space-y-4 p-4 bg-gray-50 rounded-lg border">
-                        <h3 class="font-medium text-lg text-center">Away Team</h3>
-                        <div>
-                            <label for="away_avg_score" class="block text-sm font-medium text-gray-700 mb-1">Avg. Score</label>
-                            <input type="number" step="0.01" id="away_avg_score" value="1.8" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- AWAY TEAM -->
+                <div class="team-card">
+                    <h2>🚗 AWAY</h2>
+                    <div class="form-group">
+                        <label>Team Name</label>
+                        <input type="text" id="awayName" value="AWAY" placeholder="Enter away team name">
+                    </div>
+                    <div class="form-group">
+                        <label>Current Points</label>
+                        <input type="number" id="awayPoints" value="51" placeholder="League points">
+                    </div>
+                    <div class="form-group">
+                        <label>Games Played</label>
+                        <input type="number" id="awayGames" value="26" placeholder="Total games">
+                    </div>
+                    <div class="recent-matches">
+                        <h3>Recent 5 Matches</h3>
+                        <div class="match-row">
+                            <select id="awayResult1">
+                                <option value="win" selected>Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                            <input type="number" id="awayOpp1" value="35" placeholder="Opponent pts">
                         </div>
-                        <div>
-                            <label for="away_avg_conceded" class="block text-sm font-medium text-gray-700 mb-1">Avg. Conceded</label>
-                            <input type="number" step="0.01" id="away_avg_conceded" value="1.2" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        <div class="match-row">
+                            <select id="awayResult2">
+                                <option value="win" selected>Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                            <input type="number" id="awayOpp2" value="18" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="awayResult3">
+                                <option value="win">Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss" selected>Loss</option>
+                            </select>
+                            <input type="number" id="awayOpp3" value="35" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="awayResult4">
+                                <option value="win">Win</option>
+                                <option value="draw" selected>Draw</option>
+                                <option value="loss">Loss</option>
+                            </select>
+                            <input type="number" id="awayOpp4" value="38" placeholder="Opponent pts">
+                        </div>
+                        <div class="match-row">
+                            <select id="awayResult5">
+                                <option value="win">Win</option>
+                                <option value="draw">Draw</option>
+                                <option value="loss" selected>Loss</option>
+                            </select>
+                            <input type="number" id="awayOpp5" value="39" placeholder="Opponent pts">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 2: Prediction Details -->
-            <div>
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Prediction Details</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="prediction" class="block text-sm font-medium text-gray-700 mb-1">Prediction Text</label>
-                        <input type="text" id="prediction" value="Away Win and Over 2.5" placeholder="e.g., Home Win and BTTS" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="odds" class="block text-sm font-medium text-gray-700 mb-1">Odds</label>
-                        <input type="number" step="0.01" id="odds" value="2.10" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                    <div>
-                        <label for="stake" class="block text-sm font-medium text-gray-700 mb-1">Stake (Units)</label>
-                        <input type="number" step="1" id="stake" value="12" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-                <div class="mt-4">
-                     <label for="correct_score" class="block text-sm font-medium text-gray-700 mb-1">Correct Score (H:A)</label>
-                     <input type="text" id="correct_score" value="1:4" placeholder="e.g., 2:1" class="w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-            
-            <!-- Submit Button -->
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-200 ease-in-out">
-                Rate Prediction
-            </button>
-        </form>
+            <button class="calculate-btn" onclick="calculatePower()">⚡ Calculate Power Ratings</button>
 
-        <!-- Result Section -->
-        <div id="resultSection" class="mt-8 border-t pt-6" style="display: none;">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">Evaluation Result</h2>
-            
-            <!-- Confidence Bar -->
-            <div>
-                <div class="flex justify-between mb-1">
-                    <span class="text-base font-medium text-blue-700">Confidence</span>
-                    <span id="confidenceText" class="text-sm font-medium text-blue-700">0%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-4">
-                    <div id="confidenceBar" class="bg-blue-600 h-4 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
-                </div>
-            </div>
-
-            <!-- Verdict -->
-            <div class="mt-4">
-                <span class="block text-sm font-medium text-gray-500">Verdict</span>
-                <span id="verdictText" class="text-3xl font-bold text-gray-900"></span>
-            </div>
-
-            <!-- Reasoning -->
-            <div class="mt-6">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2">Reasoning</h3>
-                <ul id="reasoningList" class="list-disc list-inside space-y-1">
-                    <!-- JS will populate this -->
-                </ul>
+            <div class="results" id="results">
+                <h2>📊 Analysis Results</h2>
+                <div id="resultsContent"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- Main Prediction Logic (Ported from Python) ---
+        function calculateTeamPower(teamName, teamPoints, recentMatches, maxPoints = 20) {
+            let totalPower = 0;
 
-        function rate_prediction(home_avg_score, home_avg_conceded, away_avg_score, away_avg_conceded,
-                                 prediction, odds, correct_score, stake) {
-            
-            let score = 50; // start from a neutral score
-            let reasoning = []; // store explanations for each adjustment
+            for (let [result, opponentPoints] of recentMatches) {
+                const difficulty = opponentPoints / maxPoints;
+                let matchPower = 0;
 
-            // Helper to add reasoning with a type for styling
-            function addReason(text, type) {
-                reasoning.push({ text, type });
-            }
-
-            // 1. Match outcome logic
-            if (prediction.includes("Home")) {
-                if (home_avg_score > away_avg_conceded && home_avg_score > away_avg_score) {
-                    score += 10;
-                    addReason("Home attack stronger than away defense.", "positive");
-                } else {
-                    score -= 10;
-                    addReason("Home attack not strong enough for a confident home win.", "negative");
+                if (result.toLowerCase() === "win") {
+                    matchPower = 1.0 * difficulty;
+                } else if (result.toLowerCase() === "draw") {
+                    matchPower = 0.5 * difficulty;
+                } else if (result.toLowerCase() === "loss") {
+                    matchPower = -0.5 * (1 - difficulty);
                 }
-            } else if (prediction.includes("Away")) {
-                if (away_avg_score > home_avg_conceded && away_avg_score >= home_avg_score) {
-                    score += 10;
-                    addReason("Away attack stronger than home defense.", "positive");
-                } else {
-                    score -= 10;
-                    addReason("Away attack not strong enough for a confident away win.", "negative");
-                }
+
+                totalPower += matchPower;
             }
 
-            // 2. Over 2.5 goals logic
-            if (prediction.includes("Over 2.5")) {
-                let avg_total = (home_avg_score + away_avg_score) / 2;
-                if (avg_total >= 2.5) {
-                    score += 10;
-                    addReason("Goal averages support Over 2.5.", "positive");
-                } else {
-                    score -= 10;
-                    addReason("Averages too low for Over 2.5.", "negative");
-                }
-            }
+            const avgPower = totalPower / recentMatches.length;
+            const teamStrengthScale = teamPoints / maxPoints;
+            const finalRating = avgPower * teamStrengthScale;
 
-            // 3. Both Teams To Score logic
-            if (prediction.includes("Both Teams To Score") || prediction.includes("BTTS")) {
-                if (home_avg_score >= 1 && away_avg_score >= 1) {
-                    score += 10;
-                    addReason("Both teams average more than 1 goal per game.", "positive");
-                } else {
-                    score -= 10;
-                    addReason("One team rarely scores; BTTS less likely.", "negative");
-                }
-            }
-
-            // 4. Odds adjustment
-            if (odds > 3) {
-                score -= 8;
-                addReason("High odds indicate risky prediction.", "negative");
-            } else if (odds >= 2 && odds <= 3) {
-                score -= 3;
-                addReason("Moderate odds: medium risk.", "neutral");
-            } else if (odds < 2) {
-                score += 5;
-                addReason("Low odds suggest safer outcome.", "positive");
-            }
-
-            // 5. Stake influence
-            if (stake >= 10) {
-                score += 3;
-                addReason("Higher stake indicates confidence.", "positive");
-            } else if (stake <= 5) {
-                score -= 3;
-                addReason("Low stake suggests low confidence.", "negative");
-            }
-
-            // 6. Correct score realism check
-            try {
-                const [h, a] = correct_score.split(":").map(Number);
-                if (isNaN(h) || isNaN(a)) throw new Error("Invalid format");
-
-                if (Math.abs(h - home_avg_score) < 1 && Math.abs(a - away_avg_score) < 1) {
-                    score += 4;
-                    addReason("Correct score prediction seems realistic.", "positive");
-                } else {
-                    score -= 4;
-                    addReason("Correct score looks unrealistic.", "negative");
-                }
-            } catch (e) {
-                addReason("Correct score format issue (use H:A).", "neutral");
-            }
-
-            // 7. Clamp score between 0 and 100
-            score = Math.max(0, Math.min(100, score));
-
-            // 8. Generate final verdict
-            let verdict = "";
-            if (score >= 80) {
-                verdict = "Excellent Prediction";
-            } else if (score >= 65) {
-                verdict = "Good Prediction";
-            } else if (score >= 45) {
-                verdict = "Average Prediction";
-            } else {
-                verdict = "Weak Prediction";
-            }
-
-            // 9. Return structured output
             return {
-                confidence: score,
-                verdict: verdict,
-                reasoning: reasoning
+                finalRating,
+                avgPower,
+                teamStrengthScale
             };
         }
 
-        // --- Event Listener to connect form to logic ---
-        
-        document.getElementById("predictionForm").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the form from submitting traditionally
+        function calculatePower() {
+            // Get HOME team data
+            const homeName = document.getElementById('homeName').value;
+            const homePoints = parseFloat(document.getElementById('homePoints').value);
+            const homeGames = parseFloat(document.getElementById('homeGames').value);
+            const homeRecent = [
+                [document.getElementById('homeResult1').value, parseFloat(document.getElementById('homeOpp1').value)],
+                [document.getElementById('homeResult2').value, parseFloat(document.getElementById('homeOpp2').value)],
+                [document.getElementById('homeResult3').value, parseFloat(document.getElementById('homeOpp3').value)],
+                [document.getElementById('homeResult4').value, parseFloat(document.getElementById('homeOpp4').value)],
+                [document.getElementById('homeResult5').value, parseFloat(document.getElementById('homeOpp5').value)]
+            ];
 
-            // Get values from the form
-            const home_avg_score = parseFloat(document.getElementById("home_avg_score").value) || 0;
-            const home_avg_conceded = parseFloat(document.getElementById("home_avg_conceded").value) || 0;
-            const away_avg_score = parseFloat(document.getElementById("away_avg_score").value) || 0;
-            const away_avg_conceded = parseFloat(document.getElementById("away_avg_conceded").value) || 0;
-            const prediction = document.getElementById("prediction").value;
-            const odds = parseFloat(document.getElementById("odds").value) || 0;
-            const correct_score = document.getElementById("correct_score").value;
-            const stake = parseFloat(document.getElementById("stake").value) || 0;
+            // Get AWAY team data
+            const awayName = document.getElementById('awayName').value;
+            const awayPoints = parseFloat(document.getElementById('awayPoints').value);
+            const awayGames = parseFloat(document.getElementById('awayGames').value);
+            const awayRecent = [
+                [document.getElementById('awayResult1').value, parseFloat(document.getElementById('awayOpp1').value)],
+                [document.getElementById('awayResult2').value, parseFloat(document.getElementById('awayOpp2').value)],
+                [document.getElementById('awayResult3').value, parseFloat(document.getElementById('awayOpp3').value)],
+                [document.getElementById('awayResult4').value, parseFloat(document.getElementById('awayOpp4').value)],
+                [document.getElementById('awayResult5').value, parseFloat(document.getElementById('awayOpp5').value)]
+            ];
 
-            // Run the evaluation
-            const result = rate_prediction(
-                home_avg_score, home_avg_conceded,
-                away_avg_score, away_avg_conceded,
-                prediction, odds, correct_score, stake
-            );
+            // Calculate power ratings
+            const homeStats = calculateTeamPower(homeName, homePoints, homeRecent);
+            const awayStats = calculateTeamPower(awayName, awayPoints, awayRecent);
 
-            // --- Display the results ---
+            // Generate results HTML
+            let resultsHTML = '';
 
-            // Get result elements
-            const resultSection = document.getElementById("resultSection");
-            const confidenceText = document.getElementById("confidenceText");
-            const confidenceBar = document.getElementById("confidenceBar");
-            const verdictText = document.getElementById("verdictText");
-            const reasoningList = document.getElementById("reasoningList");
+            // Team stats
+            resultsHTML += `
+                <div class="result-section">
+                    <h3>🏠 ${homeName} Statistics</h3>
+                    <p><strong>Average Match Power:</strong> ${homeStats.avgPower.toFixed(3)}</p>
+                    <p><strong>League Strength Scale:</strong> ${homeStats.teamStrengthScale.toFixed(3)}</p>
+                    <p><strong>Final Power Rating:</strong> ${homeStats.finalRating.toFixed(3)}</p>
+                </div>
 
-            // Update confidence
-            const confidence = result.confidence;
-            confidenceText.textContent = `${confidence}%`;
-            confidenceBar.style.width = `${confidence}%`;
-            
-            // Update confidence bar color based on score
-            confidenceBar.classList.remove("bg-red-600", "bg-yellow-500", "bg-green-600", "bg-blue-600"); // Clear old colors
-            if (confidence < 45) {
-                confidenceBar.classList.add("bg-red-600");
-            } else if (confidence < 65) {
-                confidenceBar.classList.add("bg-yellow-500");
-            } else if (confidence < 80) {
-                confidenceBar.classList.add("bg-green-600");
+                <div class="result-section">
+                    <h3>🚗 ${awayName} Statistics</h3>
+                    <p><strong>Average Match Power:</strong> ${awayStats.avgPower.toFixed(3)}</p>
+                    <p><strong>League Strength Scale:</strong> ${awayStats.teamStrengthScale.toFixed(3)}</p>
+                    <p><strong>Final Power Rating:</strong> ${awayStats.finalRating.toFixed(3)}</p>
+                </div>
+            `;
+
+            // Comparison
+            if (homeStats.finalRating > awayStats.finalRating) {
+                const diff = homeStats.finalRating - awayStats.finalRating;
+                const confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
+                resultsHTML += `
+                    <div class="winner">
+                        🏆 ${homeName} is stronger than ${awayName}
+                    </div>
+                    <div class="result-section">
+                        <h3>📈 Match Analysis</h3>
+                        <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
+                        <p><strong>Confidence Level:</strong> ${confidence}%</p>
+                        <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
+                        <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
+                    </div>
+                `;
+            } else if (awayStats.finalRating > homeStats.finalRating) {
+                const diff = awayStats.finalRating - homeStats.finalRating;
+                const confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
+                resultsHTML += `
+                    <div class="winner">
+                        🏆 ${awayName} is stronger than ${homeName}
+                    </div>
+                    <div class="result-section">
+                        <h3>📈 Match Analysis</h3>
+                        <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
+                        <p><strong>Confidence Level:</strong> ${confidence}%</p>
+                        <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
+                        <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
+                    </div>
+                `;
             } else {
-                confidenceBar.classList.add("bg-blue-600");
+                resultsHTML += `
+                    <div class="winner">
+                        ⚖️ Both teams are equally matched
+                    </div>
+                `;
             }
 
-            // Update verdict
-            verdictText.textContent = result.verdict;
+            // Ratio-based prediction
+            const homeRatio = homeStats.teamStrengthScale / awayStats.teamStrengthScale;
+            const awayRatio = awayStats.teamStrengthScale / homeStats.teamStrengthScale;
+            const formRatioHome = homeStats.avgPower / awayStats.avgPower;
+            const formRatioAway = awayStats.avgPower / homeStats.avgPower;
 
-            // Update reasoning
-            reasoningList.innerHTML = ""; // Clear old reasoning
-            if (result.reasoning.length > 0) {
-                result.reasoning.forEach(item => {
-                    const li = document.createElement("li");
-                    li.textContent = item.text;
-                    // Add class based on reason type
-                    if (item.type === "positive") {
-                        li.className = "reason-item positive";
-                    } else if (item.type === "negative") {
-                        li.className = "reason-item negative";
-                    } else {
-                        li.className = "reason-item neutral";
-                    }
-                    reasoningList.appendChild(li);
-                });
+            resultsHTML += `<div class="result-section"><h3>🔍 Prediction Rule</h3>`;
+            if (homeRatio > formRatioHome) {
+                resultsHTML += `<p>🏠 <strong>Home win likely</strong> (${homeName})</p>`;
+            } else if (awayRatio > formRatioAway) {
+                resultsHTML += `<p>🚗 <strong>Away win likely</strong> (${awayName})</p>`;
             } else {
-                reasoningList.innerHTML = "<li class='text-gray-500'>No specific reasoning triggered. Base score applied.</li>";
+                resultsHTML += `<p>⚖️ <strong>Balanced match</strong> (possible draw or close contest)</p>`;
             }
-            
-            // Show the result section
-            resultSection.style.display = "block";
-            // Scroll to results on small screens
-            resultSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        });
+            resultsHTML += `</div>`;
 
+            // Consistency advantage
+            const homePPG = homePoints / homeGames;
+            const awayPPG = awayPoints / awayGames;
+            const homeDiffPct = (homePPG - homeStats.avgPower) / homeStats.avgPower * 100;
+            const awayDiffPct = (awayPPG - awayStats.avgPower) / awayStats.avgPower * 100;
+
+            resultsHTML += `
+                <div class="result-section">
+                    <h3>📊 Consistency Advantage</h3>
+                    <p><strong>${homeName}:</strong> Points/Game: ${homePPG.toFixed(3)}, Diff%: ${homeDiffPct.toFixed(2)}%</p>
+                    <p><strong>${awayName}:</strong> Points/Game: ${awayPPG.toFixed(3)}, Diff%: ${awayDiffPct.toFixed(2)}%</p>
+            `;
+
+            if (homeDiffPct > awayDiffPct) {
+                resultsHTML += `<p>✅ <strong>${homeName} has a consistency advantage</strong> (form aligns better with power)</p>`;
+            } else if (awayDiffPct > homeDiffPct) {
+                resultsHTML += `<p>✅ <strong>${awayName} has a consistency advantage</strong> (form aligns better with power)</p>`;
+            } else {
+                resultsHTML += `<p>⚖️ Both teams are equally consistent in performance vs power</p>`;
+            }
+            resultsHTML += `</div>`;
+
+            // Display results
+            document.getElementById('resultsContent').innerHTML = resultsHTML;
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     </script>
 </body>
 </html>
