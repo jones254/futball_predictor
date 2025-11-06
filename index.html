@@ -226,6 +226,25 @@
             margin-bottom: 20px;
         }
 
+        .favourite-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+        }
+
         @media (max-width: 768px) {
             .teams-grid {
                 grid-template-columns: 1fr;
@@ -460,41 +479,79 @@
             `;
 
             // Comparison
+            let stronger, weaker, diff, confidence, strongerRating, weakerRating, strongerName, weakerName;
+            
             if (homeStats.finalRating > awayStats.finalRating) {
-                const diff = homeStats.finalRating - awayStats.finalRating;
-                const confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
-                resultsHTML += `
-                    <div class="winner">
-                        🏆 ${homeName} is stronger than ${awayName}
-                    </div>
-                    <div class="result-section">
-                        <h3>📈 Match Analysis</h3>
-                        <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
-                        <p><strong>Confidence Level:</strong> ${confidence}%</p>
-                        <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
-                        <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
-                    </div>
-                `;
+                stronger = homeName;
+                weaker = awayName;
+                diff = homeStats.finalRating - awayStats.finalRating;
+                confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
+                strongerRating = homeStats.finalRating;
+                weakerRating = awayStats.finalRating;
+                strongerName = homeName;
+                weakerName = awayName;
             } else if (awayStats.finalRating > homeStats.finalRating) {
-                const diff = awayStats.finalRating - homeStats.finalRating;
-                const confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
-                resultsHTML += `
-                    <div class="winner">
-                        🏆 ${awayName} is stronger than ${homeName}
-                    </div>
-                    <div class="result-section">
-                        <h3>📈 Match Analysis</h3>
-                        <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
-                        <p><strong>Confidence Level:</strong> ${confidence}%</p>
-                        <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
-                        <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
-                    </div>
-                `;
+                stronger = awayName;
+                weaker = homeName;
+                diff = awayStats.finalRating - homeStats.finalRating;
+                confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
+                strongerRating = awayStats.finalRating;
+                weakerRating = homeStats.finalRating;
+                strongerName = awayName;
+                weakerName = homeName;
             } else {
                 resultsHTML += `
                     <div class="winner">
                         ⚖️ Both teams are equally matched
                     </div>
+                `;
+                document.getElementById('resultsContent').innerHTML = resultsHTML;
+                document.getElementById('results').classList.add('show');
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                return;
+            }
+
+            resultsHTML += `
+                <div class="winner">
+                    🏆 ${stronger} is stronger than ${weaker}
+                </div>
+                <div class="result-section">
+                    <h3>📈 Match Analysis</h3>
+                    <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
+                    <p><strong>Confidence Level:</strong> ${confidence}%</p>
+                    <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
+                    <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
+                </div>
+            `;
+
+            // NEW: Diff% calculation and Favourite Detection
+            const diffPercent = (diff / weakerRating) * 100;
+            const strongerAdjusted = strongerRating + (strongerRating * (diffPercent / 100));
+            const weakerAdjusted = weakerRating - (weakerRating * (diffPercent / 100));
+
+            resultsHTML += `
+                <div class="result-section">
+                    <h3>📈 Diff% Based on Power Ratings</h3>
+                    <div class="highlight">
+                        <p><strong>Diff%:</strong> ${diffPercent.toFixed(2)}%</p>
+                        <p><strong>Adjusted ${strongerName} Rating:</strong> ${strongerAdjusted.toFixed(3)}</p>
+                        <p><strong>Adjusted ${weakerName} Rating:</strong> ${weakerAdjusted.toFixed(3)}</p>
+                    </div>
+            `;
+
+            // Favourite Detection
+            if (diffPercent > confidence) {
+                resultsHTML += `
+                    </div>
+                    <div class="favourite-box">
+                        ⭐ ${strongerName} is the FAVOURITE<br>
+                        <span style="font-size: 0.8em;">(Diff% ${diffPercent.toFixed(2)}% > Confidence ${confidence}%)</span>
+                    </div>
+                `;
+            } else {
+                resultsHTML += `
+                    <p style="margin-top: 15px;">⚖️ <strong>No clear favourite</strong> — Confidence ${confidence}% is stronger than Diff% ${diffPercent.toFixed(2)}%</p>
+                </div>
                 `;
             }
 
@@ -543,4 +600,4 @@
         }
     </script>
 </body>
-</html>
+                                </html>
