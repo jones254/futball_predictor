@@ -364,10 +364,10 @@
             } else if (awayWeight > homeWeight && awayMerit > homeMerit && awayDifficulty >= homeDifficulty && awayPoints > homePoints) {
                 result = "AWAY WIN";
                 resultClass = "away-win";
-            } else if (homeWeight > awayWeight && homeMerit > awayMerit && homeDifficulty > awayDifficulty) {
+            } else if (homeWeight > awayWeight && homeMerit > awayMerit && homeDifficulty >= awayDifficulty) {
                 result = "HOME DRAW";
                 resultClass = "draw";
-            } else if (awayWeight > homeWeight && homeMerit < awayMerit && awayDifficulty > homeDifficulty) {
+            } else if (awayWeight > homeWeight && homeMerit < awayMerit && awayDifficulty >= homeDifficulty) {
                 result = "AWAY DRAW";
                 resultClass = "draw";
             } else {
