@@ -358,16 +358,16 @@
             let result;
             let resultClass;
 
-            if (homeWeight > awayWeight && homeDifficulty >= awayDifficulty && homePoints > awayPoints) {
+            if (homeWeight > awayWeight && homeMerit > awayMerit && homeDifficulty >= awayDifficulty && homePoints > awayPoints) {
                 result = "HOME WIN";
                 resultClass = "home-win";
-            } else if (awayWeight > homeWeight && awayDifficulty >= homeDifficulty && awayPoints > homePoints) {
+            } else if (awayWeight > homeWeight && awayMerit > homeMerit && awayDifficulty >= homeDifficulty && awayPoints > homePoints) {
                 result = "AWAY WIN";
                 resultClass = "away-win";
-            } else if (homeWeight > awayWeight && homeDifficulty > awayDifficulty) {
+            } else if (homeWeight > awayWeight && homeMerit > awayMerit && homeDifficulty > awayDifficulty) {
                 result = "HOME DRAW";
                 resultClass = "draw";
-            } else if (awayWeight > homeWeight && awayDifficulty > homeDifficulty) {
+            } else if (awayWeight > homeWeight && homeMerit < awayMerit && awayDifficulty > homeDifficulty) {
                 result = "AWAY DRAW";
                 resultClass = "draw";
             } else {
@@ -390,4 +390,4 @@
         calculate();
     </script>
 </body>
-</html>
+            </html>
