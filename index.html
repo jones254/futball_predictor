@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Team Power Rating Calculator</title>
+    <title>Team Strength Comparison</title>
     <style>
         * {
             margin: 0;
@@ -16,129 +16,102 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .content {
+            max-width: 1200px;
+            width: 100%;
             padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 1.1em;
         }
 
         .teams-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 30px;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .team-card {
-            background: #f8f9fa;
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
             border-radius: 15px;
-            padding: 25px;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
+            padding: 30px;
+            border: 2px solid #e2e8f0;
         }
 
-        .team-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        .team-card.home {
+            border-left: 5px solid #48bb78;
         }
 
-        .team-card h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
+        .team-card.away {
+            border-left: 5px solid #4299e1;
         }
 
-        .form-group {
+        .team-header {
+            display: flex;
+            align-items: center;
             margin-bottom: 20px;
         }
 
-        .form-group label {
+        .team-icon {
+            font-size: 2em;
+            margin-right: 15px;
+        }
+
+        .team-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 600;
-            color: #495057;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95em;
         }
 
-        .form-group input {
+        input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #dee2e6;
+            border: 2px solid #e2e8f0;
             border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
+            font-size: 1em;
+            transition: all 0.3s;
         }
 
-        .form-group input:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .recent-matches {
-            margin-top: 20px;
-        }
-
-        .recent-matches h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.2em;
-        }
-
-        .match-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .match-row select {
-            padding: 10px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        .match-row select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .match-row input {
-            padding: 10px;
-            border: 2px solid #dee2e6;
-            border-radius: 8px;
-            font-size: 14px;
+        .opponents-input {
+            font-family: 'Courier New', monospace;
         }
 
         .calculate-btn {
@@ -148,11 +121,11 @@
             color: white;
             border: none;
             border-radius: 12px;
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
+            transition: all 0.3s;
+            margin-bottom: 30px;
         }
 
         .calculate-btn:hover {
@@ -165,84 +138,75 @@
         }
 
         .results {
-            margin-top: 40px;
-            padding: 30px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
             display: none;
+            animation: fadeIn 0.5s;
         }
 
-        .results.show {
-            display: block;
-            animation: slideIn 0.5s ease;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .results h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 2em;
+        .prediction-card {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            border-radius: 15px;
+            padding: 40px;
             text-align: center;
+            margin-bottom: 30px;
+            color: white;
         }
 
-        .result-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 5px solid #667eea;
-        }
-
-        .result-section h3 {
-            color: #495057;
-            margin-bottom: 15px;
-            font-size: 1.3em;
-        }
-
-        .result-section p {
+        .prediction-label {
+            font-size: 1em;
+            opacity: 0.8;
             margin-bottom: 10px;
-            line-height: 1.6;
-            font-size: 1.05em;
         }
 
-        .winner {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .prediction-result {
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .prediction-result.home-win {
+            color: #48bb78;
+        }
+
+        .prediction-result.away-win {
+            color: #4299e1;
+        }
+
+        .prediction-result.draw {
+            color: #f6ad55;
+        }
+
+        .prediction-result.avoid {
+            color: #fc8181;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: #f7fafc;
+            border-radius: 12px;
             padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 1.5em;
-            font-weight: 600;
-            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
         }
 
-        .favourite-box {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 1.3em;
-            font-weight: 600;
-            margin-bottom: 20px;
+        .metric-label {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 8px;
         }
 
-        .highlight {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #ffc107;
-            margin: 10px 0;
+        .metric-value {
+            color: #2d3748;
+            font-size: 1.8em;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -250,11 +214,11 @@
                 grid-template-columns: 1fr;
             }
 
-            .header h1 {
+            h1 {
                 font-size: 1.8em;
             }
 
-            .content {
+            .container {
                 padding: 20px;
             }
         }
@@ -262,342 +226,168 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>⚽ Team Power Rating Calculator</h1>
-            <p>Analyze team performance based on recent form and opponent strength</p>
-        </div>
+        <h1>⚽ Team Strength Analyzer</h1>
+        <p class="subtitle">Advanced Match Prediction System</p>
 
-        <div class="content">
-            <div class="teams-grid">
-                <!-- HOME TEAM -->
-                <div class="team-card">
-                    <h2>🏠 HOME</h2>
-                    <div class="form-group">
-                        <label>Team Name</label>
-                        <input type="text" id="homeName" value="HOME" placeholder="Enter home team name">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Points</label>
-                        <input type="number" id="homePoints" value="45" placeholder="League points">
-                    </div>
-                    <div class="form-group">
-                        <label>Games Played</label>
-                        <input type="number" id="homeGames" value="26" placeholder="Total games">
-                    </div>
-                    <div class="recent-matches">
-                        <h3>Recent 5 Matches</h3>
-                        <div class="match-row">
-                            <select id="homeResult1">
-                                <option value="win">Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss" selected>Loss</option>
-                            </select>
-                            <input type="number" id="homeOpp1" value="35" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="homeResult2">
-                                <option value="win">Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss" selected>Loss</option>
-                            </select>
-                            <input type="number" id="homeOpp2" value="36" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="homeResult3">
-                                <option value="win">Win</option>
-                                <option value="draw" selected>Draw</option>
-                                <option value="loss">Loss</option>
-                            </select>
-                            <input type="number" id="homeOpp3" value="54" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="homeResult4">
-                                <option value="win">Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss" selected>Loss</option>
-                            </select>
-                            <input type="number" id="homeOpp4" value="27" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="homeResult5">
-                                <option value="win" selected>Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss">Loss</option>
-                            </select>
-                            <input type="number" id="homeOpp5" value="25" placeholder="Opponent pts">
-                        </div>
-                    </div>
+        <div class="teams-grid">
+            <!-- Home Team -->
+            <div class="team-card home">
+                <div class="team-header">
+                    <div class="team-icon">🏠</div>
+                    <div class="team-title">Home Team</div>
                 </div>
-
-                <!-- AWAY TEAM -->
-                <div class="team-card">
-                    <h2>🚗 AWAY</h2>
-                    <div class="form-group">
-                        <label>Team Name</label>
-                        <input type="text" id="awayName" value="AWAY" placeholder="Enter away team name">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Points</label>
-                        <input type="number" id="awayPoints" value="51" placeholder="League points">
-                    </div>
-                    <div class="form-group">
-                        <label>Games Played</label>
-                        <input type="number" id="awayGames" value="26" placeholder="Total games">
-                    </div>
-                    <div class="recent-matches">
-                        <h3>Recent 5 Matches</h3>
-                        <div class="match-row">
-                            <select id="awayResult1">
-                                <option value="win" selected>Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss">Loss</option>
-                            </select>
-                            <input type="number" id="awayOpp1" value="35" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="awayResult2">
-                                <option value="win" selected>Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss">Loss</option>
-                            </select>
-                            <input type="number" id="awayOpp2" value="18" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="awayResult3">
-                                <option value="win">Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss" selected>Loss</option>
-                            </select>
-                            <input type="number" id="awayOpp3" value="35" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="awayResult4">
-                                <option value="win">Win</option>
-                                <option value="draw" selected>Draw</option>
-                                <option value="loss">Loss</option>
-                            </select>
-                            <input type="number" id="awayOpp4" value="38" placeholder="Opponent pts">
-                        </div>
-                        <div class="match-row">
-                            <select id="awayResult5">
-                                <option value="win">Win</option>
-                                <option value="draw">Draw</option>
-                                <option value="loss" selected>Loss</option>
-                            </select>
-                            <input type="number" id="awayOpp5" value="39" placeholder="Opponent pts">
-                        </div>
-                    </div>
+                <div class="input-group">
+                    <label>Opponents (comma-separated)</label>
+                    <input type="text" id="homeOpponents" class="opponents-input" value="34, 46, 42, 38, 54">
+                </div>
+                <div class="input-group">
+                    <label>Points</label>
+                    <input type="number" id="homePoints" value="41">
+                </div>
+                <div class="input-group">
+                    <label>Score</label>
+                    <input type="number" step="0.01" id="homeScore" value="1.32">
+                </div>
+                <div class="input-group">
+                    <label>Score Percentage (%)</label>
+                    <input type="number" id="homeScorePercentage" value="88">
+                </div>
+                <div class="input-group">
+                    <label>Concede</label>
+                    <input type="number" id="homeConcede" value="29">
+                </div>
+                <div class="input-group">
+                    <label>Difficulty</label>
+                    <input type="number" id="homeDifficulty" value="3">
                 </div>
             </div>
 
-            <button class="calculate-btn" onclick="calculatePower()">⚡ Calculate Power Ratings</button>
+            <!-- Away Team -->
+            <div class="team-card away">
+                <div class="team-header">
+                    <div class="team-icon">✈️</div>
+                    <div class="team-title">Away Team</div>
+                </div>
+                <div class="input-group">
+                    <label>Opponents (comma-separated)</label>
+                    <input type="text" id="awayOpponents" class="opponents-input" value="46, 42, 38, 34, 64">
+                </div>
+                <div class="input-group">
+                    <label>Points</label>
+                    <input type="number" id="awayPoints" value="31">
+                </div>
+                <div class="input-group">
+                    <label>Score</label>
+                    <input type="number" step="0.01" id="awayScore" value="0.88">
+                </div>
+                <div class="input-group">
+                    <label>Score Percentage (%)</label>
+                    <input type="number" id="awayScorePercentage" value="53">
+                </div>
+                <div class="input-group">
+                    <label>Concede</label>
+                    <input type="number" id="awayConcede" value="32">
+                </div>
+                <div class="input-group">
+                    <label>Difficulty</label>
+                    <input type="number" id="awayDifficulty" value="2">
+                </div>
+            </div>
+        </div>
 
-            <div class="results" id="results">
-                <h2>📊 Analysis Results</h2>
-                <div id="resultsContent"></div>
+        <button class="calculate-btn" onclick="calculate()">🔮 Calculate Prediction</button>
+
+        <div class="results" id="results">
+            <div class="prediction-card">
+                <div class="prediction-label">Match Prediction</div>
+                <div class="prediction-result" id="predictionResult">HOME WIN</div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Home Weight</div>
+                    <div class="metric-value" id="homeWeight">0.000</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Away Weight</div>
+                    <div class="metric-value" id="awayWeight">0.000</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Home Merit</div>
+                    <div class="metric-value" id="homeMerit">0.000</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Away Merit</div>
+                    <div class="metric-value" id="awayMerit">0.000</div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        function calculateTeamPower(teamName, teamPoints, recentMatches, maxPoints = 20) {
-            let totalPower = 0;
-
-            for (let [result, opponentPoints] of recentMatches) {
-                const difficulty = opponentPoints / maxPoints;
-                let matchPower = 0;
-
-                if (result.toLowerCase() === "win") {
-                    matchPower = 1.0 * difficulty;
-                } else if (result.toLowerCase() === "draw") {
-                    matchPower = 0.5 * difficulty;
-                } else if (result.toLowerCase() === "loss") {
-                    matchPower = -0.5 * (1 - difficulty);
-                }
-
-                totalPower += matchPower;
-            }
-
-            const avgPower = totalPower / recentMatches.length;
-            const teamStrengthScale = teamPoints / maxPoints;
-            const finalRating = avgPower * teamStrengthScale;
-
-            return {
-                finalRating,
-                avgPower,
-                teamStrengthScale
-            };
-        }
-
-        function calculatePower() {
-            // Get HOME team data
-            const homeName = document.getElementById('homeName').value;
+        function calculate() {
+            // Get home team inputs
+            const homeOpponents = document.getElementById('homeOpponents').value
+                .split(',').map(n => parseFloat(n.trim()));
             const homePoints = parseFloat(document.getElementById('homePoints').value);
-            const homeGames = parseFloat(document.getElementById('homeGames').value);
-            const homeRecent = [
-                [document.getElementById('homeResult1').value, parseFloat(document.getElementById('homeOpp1').value)],
-                [document.getElementById('homeResult2').value, parseFloat(document.getElementById('homeOpp2').value)],
-                [document.getElementById('homeResult3').value, parseFloat(document.getElementById('homeOpp3').value)],
-                [document.getElementById('homeResult4').value, parseFloat(document.getElementById('homeOpp4').value)],
-                [document.getElementById('homeResult5').value, parseFloat(document.getElementById('homeOpp5').value)]
-            ];
+            const homeScore = parseFloat(document.getElementById('homeScore').value);
+            const homeScorePercentage = parseFloat(document.getElementById('homeScorePercentage').value);
+            const homeConcede = parseFloat(document.getElementById('homeConcede').value);
+            const homeDifficulty = parseFloat(document.getElementById('homeDifficulty').value);
 
-            // Get AWAY team data
-            const awayName = document.getElementById('awayName').value;
+            // Get away team inputs
+            const awayOpponents = document.getElementById('awayOpponents').value
+                .split(',').map(n => parseFloat(n.trim()));
             const awayPoints = parseFloat(document.getElementById('awayPoints').value);
-            const awayGames = parseFloat(document.getElementById('awayGames').value);
-            const awayRecent = [
-                [document.getElementById('awayResult1').value, parseFloat(document.getElementById('awayOpp1').value)],
-                [document.getElementById('awayResult2').value, parseFloat(document.getElementById('awayOpp2').value)],
-                [document.getElementById('awayResult3').value, parseFloat(document.getElementById('awayOpp3').value)],
-                [document.getElementById('awayResult4').value, parseFloat(document.getElementById('awayOpp4').value)],
-                [document.getElementById('awayResult5').value, parseFloat(document.getElementById('awayOpp5').value)]
-            ];
+            const awayScore = parseFloat(document.getElementById('awayScore').value);
+            const awayScorePercentage = parseFloat(document.getElementById('awayScorePercentage').value);
+            const awayConcede = parseFloat(document.getElementById('awayConcede').value);
+            const awayDifficulty = parseFloat(document.getElementById('awayDifficulty').value);
 
-            // Calculate power ratings
-            const homeStats = calculateTeamPower(homeName, homePoints, homeRecent);
-            const awayStats = calculateTeamPower(awayName, awayPoints, awayRecent);
+            // Calculate derived metrics
+            const homeTotal = homeOpponents.reduce((a, b) => a + b, 0);
+            const awayTotal = awayOpponents.reduce((a, b) => a + b, 0);
 
-            // Generate results HTML
-            let resultsHTML = '';
+            const homeMerit = homeScorePercentage / (100 - awayConcede);
+            const awayMerit = awayScorePercentage / (100 - homeConcede);
 
-            // Team stats
-            resultsHTML += `
-                <div class="result-section">
-                    <h3>🏠 ${homeName} Statistics</h3>
-                    <p><strong>Average Match Power:</strong> ${homeStats.avgPower.toFixed(3)}</p>
-                    <p><strong>League Strength Scale:</strong> ${homeStats.teamStrengthScale.toFixed(3)}</p>
-                    <p><strong>Final Power Rating:</strong> ${homeStats.finalRating.toFixed(3)}</p>
-                </div>
+            const homeWeight = (homeTotal / homePoints) * homeScore;
+            const awayWeight = (awayTotal / awayPoints) * awayScore;
 
-                <div class="result-section">
-                    <h3>🚗 ${awayName} Statistics</h3>
-                    <p><strong>Average Match Power:</strong> ${awayStats.avgPower.toFixed(3)}</p>
-                    <p><strong>League Strength Scale:</strong> ${awayStats.teamStrengthScale.toFixed(3)}</p>
-                    <p><strong>Final Power Rating:</strong> ${awayStats.finalRating.toFixed(3)}</p>
-                </div>
-            `;
+            // Determine prediction
+            let result;
+            let resultClass;
 
-            // Comparison
-            let stronger, weaker, diff, confidence, strongerRating, weakerRating, strongerName, weakerName;
-            
-            if (homeStats.finalRating > awayStats.finalRating) {
-                stronger = homeName;
-                weaker = awayName;
-                diff = homeStats.finalRating - awayStats.finalRating;
-                confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
-                strongerRating = homeStats.finalRating;
-                weakerRating = awayStats.finalRating;
-                strongerName = homeName;
-                weakerName = awayName;
-            } else if (awayStats.finalRating > homeStats.finalRating) {
-                stronger = awayName;
-                weaker = homeName;
-                diff = awayStats.finalRating - homeStats.finalRating;
-                confidence = Math.min(100, Math.round((diff / Math.max(homeStats.finalRating, awayStats.finalRating)) * 100 * 10) / 10);
-                strongerRating = awayStats.finalRating;
-                weakerRating = homeStats.finalRating;
-                strongerName = awayName;
-                weakerName = homeName;
+            if (homeWeight > awayWeight && homeDifficulty >= awayDifficulty && homePoints > awayPoints) {
+                result = "HOME WIN";
+                resultClass = "home-win";
+            } else if (awayWeight > homeWeight && awayDifficulty >= homeDifficulty && awayPoints > homePoints) {
+                result = "AWAY WIN";
+                resultClass = "away-win";
+            } else if (homeWeight > awayWeight && homeDifficulty > awayDifficulty) {
+                result = "HOME DRAW";
+                resultClass = "draw";
+            } else if (awayWeight > homeWeight && awayDifficulty > homeDifficulty) {
+                result = "AWAY DRAW";
+                resultClass = "draw";
             } else {
-                resultsHTML += `
-                    <div class="winner">
-                        ⚖️ Both teams are equally matched
-                    </div>
-                `;
-                document.getElementById('resultsContent').innerHTML = resultsHTML;
-                document.getElementById('results').classList.add('show');
-                document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                return;
+                result = "AVOID";
+                resultClass = "avoid";
             }
-
-            resultsHTML += `
-                <div class="winner">
-                    🏆 ${stronger} is stronger than ${weaker}
-                </div>
-                <div class="result-section">
-                    <h3>📈 Match Analysis</h3>
-                    <p><strong>Power Difference:</strong> ${diff.toFixed(3)}</p>
-                    <p><strong>Confidence Level:</strong> ${confidence}%</p>
-                    <p><strong>Win Probability:</strong> ${(confidence * 2.5).toFixed(1)}%</p>
-                    <p><strong>Draw Probability:</strong> ${(confidence * 2).toFixed(1)}%</p>
-                </div>
-            `;
-
-            // NEW: Diff% calculation and Favourite Detection
-            const diffPercent = (diff / weakerRating) * 100;
-            const strongerAdjusted = strongerRating + (strongerRating * (diffPercent / 100));
-            const weakerAdjusted = weakerRating - (weakerRating * (diffPercent / 100));
-
-            resultsHTML += `
-                <div class="result-section">
-                    <h3>📈 Diff% Based on Power Ratings</h3>
-                    <div class="highlight">
-                        <p><strong>Diff%:</strong> ${diffPercent.toFixed(2)}%</p>
-                        <p><strong>Adjusted ${strongerName} Rating:</strong> ${strongerAdjusted.toFixed(3)}</p>
-                        <p><strong>Adjusted ${weakerName} Rating:</strong> ${weakerAdjusted.toFixed(3)}</p>
-                    </div>
-            `;
-
-            // Favourite Detection
-            if (diffPercent > confidence) {
-                resultsHTML += `
-                    </div>
-                    <div class="favourite-box">
-                        ⭐ ${strongerName} is the FAVOURITE<br>
-                        <span style="font-size: 0.8em;">(Diff% ${diffPercent.toFixed(2)}% > Confidence ${confidence}%)</span>
-                    </div>
-                `;
-            } else {
-                resultsHTML += `
-                    <p style="margin-top: 15px;">⚖️ <strong>No clear favourite</strong> — Confidence ${confidence}% is stronger than Diff% ${diffPercent.toFixed(2)}%</p>
-                </div>
-                `;
-            }
-
-            // Ratio-based prediction
-            const homeRatio = homeStats.teamStrengthScale / awayStats.teamStrengthScale;
-            const awayRatio = awayStats.teamStrengthScale / homeStats.teamStrengthScale;
-            const formRatioHome = homeStats.avgPower / awayStats.avgPower;
-            const formRatioAway = awayStats.avgPower / homeStats.avgPower;
-
-            resultsHTML += `<div class="result-section"><h3>🔍 Prediction Rule</h3>`;
-            if (homeRatio > formRatioHome) {
-                resultsHTML += `<p>🏠 <strong>Home win likely</strong> (${homeName})</p>`;
-            } else if (awayRatio > formRatioAway) {
-                resultsHTML += `<p>🚗 <strong>Away win likely</strong> (${awayName})</p>`;
-            } else {
-                resultsHTML += `<p>⚖️ <strong>Balanced match</strong> (possible draw or close contest)</p>`;
-            }
-            resultsHTML += `</div>`;
-
-            // Consistency advantage
-            const homePPG = homePoints / homeGames;
-            const awayPPG = awayPoints / awayGames;
-            const homeDiffPct = (homePPG - homeStats.avgPower) / homeStats.avgPower * 100;
-            const awayDiffPct = (awayPPG - awayStats.avgPower) / awayStats.avgPower * 100;
-
-            resultsHTML += `
-                <div class="result-section">
-                    <h3>📊 Consistency Advantage</h3>
-                    <p><strong>${homeName}:</strong> Points/Game: ${homePPG.toFixed(3)}, Diff%: ${homeDiffPct.toFixed(2)}%</p>
-                    <p><strong>${awayName}:</strong> Points/Game: ${awayPPG.toFixed(3)}, Diff%: ${awayDiffPct.toFixed(2)}%</p>
-            `;
-
-            if (homeDiffPct > awayDiffPct) {
-                resultsHTML += `<p>✅ <strong>${homeName} has a consistency advantage</strong> (form aligns better with power)</p>`;
-            } else if (awayDiffPct > homeDiffPct) {
-                resultsHTML += `<p>✅ <strong>${awayName} has a consistency advantage</strong> (form aligns better with power)</p>`;
-            } else {
-                resultsHTML += `<p>⚖️ Both teams are equally consistent in performance vs power</p>`;
-            }
-            resultsHTML += `</div>`;
 
             // Display results
-            document.getElementById('resultsContent').innerHTML = resultsHTML;
-            document.getElementById('results').classList.add('show');
-            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            document.getElementById('predictionResult').textContent = result;
+            document.getElementById('predictionResult').className = `prediction-result ${resultClass}`;
+            document.getElementById('homeWeight').textContent = homeWeight.toFixed(3);
+            document.getElementById('awayWeight').textContent = awayWeight.toFixed(3);
+            document.getElementById('homeMerit').textContent = homeMerit.toFixed(3);
+            document.getElementById('awayMerit').textContent = awayMerit.toFixed(3);
+
+            document.getElementById('results').style.display = 'block';
         }
+
+        // Calculate on page load with default values
+        calculate();
     </script>
 </body>
-                                </html>
+</html>
